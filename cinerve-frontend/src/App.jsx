@@ -6,6 +6,8 @@ import Admin from './pages/Admin'
 import Profile from './pages/Profile'
 import SeatSelection from './pages/SeatSelection'
 import Payment from './pages/Payment'
+import PurchaseHistory from './pages/PurchaseHistory'
+
 
 
 export default function App() {
@@ -20,6 +22,7 @@ export default function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/seat-selection" element={<SeatSelection />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/purchase-history" element={<PurchaseHistory />} />
       </Routes>
     </BrowserRouter>
   )
