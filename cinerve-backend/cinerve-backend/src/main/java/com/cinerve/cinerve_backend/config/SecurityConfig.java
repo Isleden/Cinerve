@@ -39,12 +39,18 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/movies/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/movies/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/movies/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/movies/**").permitAll()
-                        .anyRequest().authenticated()
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/movies/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/movies/**").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/api/movies/**").permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/api/movies/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/user/**").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/api/user/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/user/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/bookings/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/bookings/**").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/api/bookings/**").permitAll()
+                .anyRequest().authenticated()
                 );
         return http.build();
     }
