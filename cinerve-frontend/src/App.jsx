@@ -22,7 +22,7 @@ export default function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/seat-selection" element={<SeatSelection />} />
         <Route path="/payment" element={<Payment />} />
-        <Route path="/purchase-history" element={<PurchaseHistory />} />
+        <Route path="/history" element={<PurchaseHistory />} />
       </Routes>
     </BrowserRouter>
   )
