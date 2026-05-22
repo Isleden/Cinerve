@@ -68,4 +68,15 @@ public class BookingService {
                 .substring(0, 8)
                 .toUpperCase();
     }
+
+    public List<Booking> getAllBookings() {
+    return bookingRepository.findAll();
+}
+
+    public Booking updateStatus(Long id, String status) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        booking.setStatus(status);
+        return bookingRepository.save(booking);
+    }
 }

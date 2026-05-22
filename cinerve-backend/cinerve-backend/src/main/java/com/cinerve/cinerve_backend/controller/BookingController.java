@@ -52,4 +52,27 @@ public class BookingController {
                     .body(Map.of("message", e.getMessage()));
         }
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllBookings() {
+        try {
+            return ResponseEntity.ok(bookingService.getAllBookings());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+        try {
+            String status = body.get("status");
+            return ResponseEntity.ok(bookingService.updateStatus(id, status));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", e.getMessage()));
+    }
+}
 }

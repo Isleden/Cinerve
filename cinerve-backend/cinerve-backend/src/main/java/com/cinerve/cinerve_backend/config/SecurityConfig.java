@@ -53,6 +53,8 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/showtimes/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/showtimes/**").permitAll()
                     .requestMatchers(HttpMethod.DELETE, "/api/showtimes/**").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/bookings/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/bookings/all").permitAll()
                     .anyRequest().authenticated()
             );
         return http.build();
