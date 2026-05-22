@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAllMovies, addMovie, updateMovie, deleteMovie, getShowtimes, addShowtime, deleteShowtime } from '../api/movies'
-import { Navbar } from '../components/Navbar'
-
+import { AdminNavbar } from '../components/AdminNavbar'
 const EMPTY_FORM = {
   title: '',
   genre: '',
@@ -327,7 +326,7 @@ export default function Admin() {
       `}</style>
 
       <div style={{ width: '100vw', minHeight: '100vh', background: '#000', fontFamily: 'Inter, sans-serif' }}>
-        <Navbar />
+        <AdminNavbar />
 
         <main style={{ maxWidth: 1280, margin: '0 auto', padding: '40px 24px' }}>
 
