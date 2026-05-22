@@ -1,37 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Navbar } from '../components/Navbar'
-import { getAllMovies } from '../api/movies'
-
-// Cinema data per movie
-const CINEMA_DATA = {
-  default: [
-    {
-      name: 'SM City Cebu',
-      address: 'North Reclamation Area, Cebu City',
-      distance: '2.5 km',
-      showtimes: ['10:00 AM', '1:30 PM', '5:00 PM', '8:30 PM'],
-    },
-    {
-      name: 'SM Seaside Cebu',
-      address: 'South Road Properties, Cebu City',
-      distance: '5.8 km',
-      showtimes: ['11:00 AM', '2:30 PM', '6:00 PM', '9:30 PM'],
-    },
-    {
-      name: 'Ayala Center Cebu',
-      address: 'Cebu Business Park, Cebu City',
-      distance: '3.2 km',
-      showtimes: ['10:30 AM', '2:00 PM', '5:30 PM', '9:00 PM'],
-    },
-    {
-      name: 'Robinsons Galleria Cebu',
-      address: 'Gen. Maxilom Ave, Cebu City',
-      distance: '4.1 km',
-      showtimes: ['11:30 AM', '3:00 PM', '6:30 PM', '9:45 PM'],
-    },
-  ],
-}
+import { getAllMovies, getShowtimes } from '../api/movies'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -40,6 +10,8 @@ export default function Dashboard() {
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
   const [selectedMovie, setSelectedMovie] = useState(null)
+  const [showtimes, setShowtimes] = useState([])
+  const [showtimesLoading, setShowtimesLoading] = useState(false)
 
   useEffect(() => {
     fetchMovies()
@@ -57,6 +29,20 @@ export default function Dashboard() {
     }
   }
 
+  const handleViewDetails = async (movie) => {
+    setSelectedMovie(movie)
+    setShowtimes([])
+    setShowtimesLoading(true)
+    try {
+      const res = await getShowtimes(movie.id)
+      setShowtimes(res.data)
+    } catch (err) {
+      setShowtimes([])
+    } finally {
+      setShowtimesLoading(false)
+    }
+  }
+
   const filteredMovies = movies.filter(m =>
     m.title?.toLowerCase().includes(search.toLowerCase()) ||
     m.genre?.toLowerCase().includes(search.toLowerCase()) ||
@@ -65,8 +51,17 @@ export default function Dashboard() {
 
   const handleShowtimeClick = (movie, cinema, time) => {
     setSelectedMovie(null)
-    navigate(`/seat-selection?movie=${encodeURIComponent(movie.title)}&cinema=${encodeURIComponent(cinema.name)}&time=${encodeURIComponent(time)}&movieId=${movie.id}&poster=${encodeURIComponent(movie.posterUrl || '')}`)
+    navigate(`/seat-selection?movie=${encodeURIComponent(movie.title)}&cinema=${encodeURIComponent(cinema.cinema)}&time=${encodeURIComponent(time)}&movieId=${movie.id}&poster=${encodeURIComponent(movie.posterUrl || '')}`)
   }
+
+  // Group showtimes by cinema
+  const groupedShowtimes = showtimes.reduce((acc, s) => {
+    if (!acc[s.cinema]) {
+      acc[s.cinema] = { cinema: s.cinema, address: s.address, distance: s.distance, times: [] }
+    }
+    acc[s.cinema].times.push(s)
+    return acc
+  }, {})
 
   return (
     <>
@@ -94,9 +89,7 @@ export default function Dashboard() {
           border-color: #dc2626;
           transform: translateY(-4px);
         }
-        .movie-card:hover .mc-poster-img {
-          transform: scale(1.05);
-        }
+        .movie-card:hover .mc-poster-img { transform: scale(1.05); }
         .mc-poster-img {
           width: 100%;
           height: 100%;
@@ -177,12 +170,8 @@ export default function Dashboard() {
 
           {/* Header */}
           <div style={{ marginBottom: 32 }}>
-            <h1 style={{ color: '#fff', fontSize: 32, fontWeight: 700, margin: '0 0 6px' }}>
-              Now Showing
-            </h1>
-            <p style={{ color: '#9ca3af', fontSize: 14, margin: 0 }}>
-              Book your tickets for the latest movies
-            </p>
+            <h1 style={{ color: '#fff', fontSize: 32, fontWeight: 700, margin: '0 0 6px' }}>Now Showing</h1>
+            <p style={{ color: '#9ca3af', fontSize: 14, margin: 0 }}>Book your tickets for the latest movies</p>
           </div>
 
           {/* Error */}
@@ -190,7 +179,6 @@ export default function Dashboard() {
             <div style={{
               background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.2)',
               borderRadius: 10, padding: '14px 20px', marginBottom: 36,
-              display: 'flex', alignItems: 'center', gap: 12,
             }}>
               <p style={{ color: '#fca5a5', fontSize: 13, margin: 0 }}>{error}</p>
             </div>
@@ -204,15 +192,11 @@ export default function Dashboard() {
               gap: 24,
             }}>
               {[...Array(6)].map((_, i) => (
-                <div key={i} style={{
-                  background: '#111827', border: '1px solid #1f2937',
-                  borderRadius: 12, overflow: 'hidden',
-                }}>
+                <div key={i} style={{ background: '#111827', border: '1px solid #1f2937', borderRadius: 12, overflow: 'hidden' }}>
                   <div className="skeleton" style={{ height: 360, width: '100%' }} />
                   <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
                     <div className="skeleton" style={{ height: 20, width: '70%' }} />
                     <div className="skeleton" style={{ height: 14, width: '40%' }} />
-                    <div className="skeleton" style={{ height: 40, width: '100%' }} />
                     <div className="skeleton" style={{ height: 38, width: '100%', borderRadius: 8 }} />
                   </div>
                 </div>
@@ -245,7 +229,7 @@ export default function Dashboard() {
                 <MovieCard
                   key={movie.id}
                   movie={movie}
-                  onViewDetails={() => setSelectedMovie(movie)}
+                  onViewDetails={() => handleViewDetails(movie)}
                 />
               ))}
             </div>
@@ -258,16 +242,13 @@ export default function Dashboard() {
         <div style={styles.overlay} onClick={() => setSelectedMovie(null)}>
           <div className="modal-card" style={styles.modal} onClick={e => e.stopPropagation()}>
 
-            {/* Close button */}
             <button onClick={() => setSelectedMovie(null)} style={styles.closeBtn}>
               <svg width="20" height="20" fill="none" stroke="#9ca3af" strokeWidth="2"
                 strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
 
-            {/* Movie title */}
             <h2 style={{ color: '#fff', fontSize: 22, fontWeight: 700, margin: '0 0 4px' }}>
               {selectedMovie.title}
             </h2>
@@ -302,49 +283,60 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Divider */}
             <div style={{ height: 1, background: '#1f2937', marginBottom: 20 }} />
 
-            {/* Available Cinemas */}
             <h3 style={{ color: '#fff', fontSize: 16, fontWeight: 600, margin: '0 0 16px' }}>
               Available Cinemas
             </h3>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {CINEMA_DATA.default.map((cinema) => (
-                <div key={cinema.name} style={styles.cinemaCard}>
-                  <div style={{ marginBottom: 12 }}>
-                    <h4 style={{ color: '#fff', fontSize: 15, fontWeight: 600, margin: '0 0 4px' }}>
-                      {cinema.name}
-                    </h4>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <svg width="12" height="12" fill="none" stroke="#6b7280" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round"
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <span style={{ color: '#6b7280', fontSize: 12 }}>
-                        {cinema.address} • {cinema.distance}
-                      </span>
+            {showtimesLoading ? (
+              <div style={{ textAlign: 'center', padding: '20px 0', color: '#6b7280' }}>
+                Loading showtimes...
+              </div>
+            ) : Object.keys(groupedShowtimes).length === 0 ? (
+              <div style={{
+                textAlign: 'center', padding: '20px 0',
+                background: '#0d1420', borderRadius: 10, border: '1px solid #1f2937',
+              }}>
+                <p style={{ color: '#6b7280', fontSize: 14, margin: 0 }}>
+                  No showtimes available for this movie yet.
+                </p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {Object.values(groupedShowtimes).map((cinemaGroup) => (
+                  <div key={cinemaGroup.cinema} style={styles.cinemaCard}>
+                    <div style={{ marginBottom: 12 }}>
+                      <h4 style={{ color: '#fff', fontSize: 15, fontWeight: 600, margin: '0 0 4px' }}>
+                        {cinemaGroup.cinema}
+                      </h4>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <svg width="12" height="12" fill="none" stroke="#6b7280" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round"
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span style={{ color: '#6b7280', fontSize: 12 }}>
+                          {cinemaGroup.address} • {cinemaGroup.distance}
+                        </span>
+                      </div>
+                    </div>
+                    <p style={{ color: '#9ca3af', fontSize: 12, margin: '0 0 10px', fontWeight: 500 }}>Showtimes</p>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      {cinemaGroup.times.map((s) => (
+                        <button
+                          key={s.id}
+                          className="showtime-btn"
+                          onClick={() => handleShowtimeClick(selectedMovie, cinemaGroup, s.time)}
+                        >
+                          {s.time}
+                        </button>
+                      ))}
                     </div>
                   </div>
-                  <p style={{ color: '#9ca3af', fontSize: 12, margin: '0 0 10px', fontWeight: 500 }}>
-                    Showtimes
-                  </p>
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    {cinema.showtimes.map((time) => (
-                      <button
-                        key={time}
-                        className="showtime-btn"
-                        onClick={() => handleShowtimeClick(selectedMovie, cinema, time)}
-                      >
-                        {time}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -355,7 +347,6 @@ export default function Dashboard() {
 function MovieCard({ movie, onViewDetails }) {
   return (
     <div className="movie-card">
-      {/* Poster */}
       <div style={{ position: 'relative', height: 360, overflow: 'hidden' }}>
         {movie.posterUrl ? (
           <img className="mc-poster-img" src={movie.posterUrl} alt={movie.title} loading="lazy" />
@@ -370,7 +361,6 @@ function MovieCard({ movie, onViewDetails }) {
             </svg>
           </div>
         )}
-        {/* Rating badge */}
         {movie.rating && (
           <div style={{
             position: 'absolute', top: 12, right: 12,
@@ -385,7 +375,6 @@ function MovieCard({ movie, onViewDetails }) {
         )}
       </div>
 
-      {/* Info */}
       <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
         <h3 style={{
           color: '#fff', fontSize: 18, fontWeight: 700, margin: 0,
@@ -442,8 +431,7 @@ const styles = {
     position: 'fixed', inset: 0, zIndex: 100,
     background: 'rgba(0,0,0,0.75)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    padding: 24,
-    backdropFilter: 'blur(4px)',
+    padding: 24, backdropFilter: 'blur(4px)',
     overflowY: 'auto',
   },
   modal: {
@@ -459,12 +447,9 @@ const styles = {
     position: 'relative',
   },
   closeBtn: {
-    position: 'absolute',
-    top: 16, right: 16,
-    background: 'none', border: 'none',
-    cursor: 'pointer', padding: 4,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    borderRadius: 6,
+    position: 'absolute', top: 16, right: 16,
+    background: 'none', border: 'none', cursor: 'pointer',
+    padding: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6,
   },
   cinemaCard: {
     background: '#0d1420',
