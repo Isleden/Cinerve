@@ -36,22 +36,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/movies/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/movies/**").permitAll()
-                .requestMatchers(HttpMethod.PUT, "/api/movies/**").permitAll()
-                .requestMatchers(HttpMethod.DELETE, "/api/movies/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/user/**").permitAll()
-                .requestMatchers(HttpMethod.PUT, "/api/user/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/user/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/bookings/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/bookings/**").permitAll()
-                .requestMatchers(HttpMethod.PUT, "/api/bookings/**").permitAll()
-                .anyRequest().authenticated()
-                );
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/movies/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/movies/**").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/movies/**").permitAll()
+                    .requestMatchers(HttpMethod.DELETE, "/api/movies/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/user/**").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/user/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/user/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/bookings/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/bookings/**").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/bookings/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/showtimes/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/showtimes/**").permitAll()
+                    .requestMatchers(HttpMethod.DELETE, "/api/showtimes/**").permitAll()
+                    .anyRequest().authenticated()
+            );
         return http.build();
     }
 }
