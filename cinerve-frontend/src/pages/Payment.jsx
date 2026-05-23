@@ -367,7 +367,24 @@ export default function Payment() {
               <p style={{ color: '#fff', fontSize: 28, fontWeight: 800, margin: '0 0 8px', letterSpacing: '2px' }}>
                 {booking.bookingReference}
               </p>
-              <p style={{ color: '#6b7280', fontSize: 12, margin: 0 }}>Please save this reference number</p>
+              <p style={{ color: '#6b7280', fontSize: 12, margin: 0 }}>Present this reference number to the cashier to claim your tickets</p>
+            </div>
+            
+            {/* Cashier Notice */}
+            <div style={{
+              background: 'rgba(234,179,8,0.1)',
+              border: '1px solid rgba(234,179,8,0.3)',
+              borderRadius: 10,
+              padding: '12px 16px',
+              marginBottom: 20,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+            }}>
+              <span style={{ fontSize: 20 }}>🎟️</span>
+              <p style={{ color: '#fde047', fontSize: 13, margin: 0, lineHeight: 1.5 }}>
+                Please show this reference code to the cashier at the cinema to claim your tickets.
+              </p>
             </div>
 
             {/* Booking details */}

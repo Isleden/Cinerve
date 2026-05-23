@@ -10,6 +10,7 @@ export default function PurchaseHistory() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState('All')
+  const [selectedBooking, setSelectedBooking] = useState(null)
 
   useEffect(() => {
     fetchHistory()
@@ -83,10 +84,13 @@ export default function PurchaseHistory() {
           gap: 16px;
           align-items: flex-start;
           cursor: pointer;
-          transition: border-color 0.15s;
+          transition: border-color 0.15s, transform 0.15s;
           position: relative;
         }
-        .booking-card:hover { border-color: #374151; }
+        .booking-card:hover {
+          border-color: #dc2626;
+          transform: translateY(-2px);
+        }
 
         @keyframes pulse {
           0%, 100% { opacity: 1; }
@@ -96,6 +100,27 @@ export default function PurchaseHistory() {
           animation: pulse 1.8s ease-in-out infinite;
           background: #1f2937;
           border-radius: 6px;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.97); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .modal-card { animation: fadeIn 0.2s ease; }
+
+        .ticket-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          padding: 12px 0;
+          border-bottom: 1px solid #1f2937;
+        }
+        .ticket-row:last-child { border-bottom: none; }
+
+        @media print {
+          .no-print { display: none !important; }
+          .print-only { display: block !important; }
+          body { background: white !important; }
         }
       `}</style>
 
@@ -188,8 +213,11 @@ export default function PurchaseHistory() {
           {!loading && filteredBookings.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {filteredBookings.map(booking => (
-                <div key={booking.id} className="booking-card">
-
+                <div
+                  key={booking.id}
+                  className="booking-card"
+                  onClick={() => setSelectedBooking(booking)}
+                >
                   {/* Poster */}
                   {booking.posterUrl ? (
                     <img src={booking.posterUrl} alt={booking.movieTitle}
@@ -212,9 +240,7 @@ export default function PurchaseHistory() {
                     <h3 style={{ color: '#fff', fontSize: 16, fontWeight: 700, margin: '0 0 10px' }}>
                       {booking.movieTitle}
                     </h3>
-
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      {/* Cinema */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <svg width="13" height="13" fill="none" stroke="#6b7280" strokeWidth="2" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round"
@@ -223,8 +249,6 @@ export default function PurchaseHistory() {
                         </svg>
                         <span style={{ color: '#9ca3af', fontSize: 13 }}>{booking.cinema}</span>
                       </div>
-
-                      {/* Date + Time */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <svg width="13" height="13" fill="none" stroke="#6b7280" strokeWidth="2" viewBox="0 0 24 24">
@@ -242,8 +266,6 @@ export default function PurchaseHistory() {
                           <span style={{ color: '#9ca3af', fontSize: 13 }}>{booking.showtime}</span>
                         </div>
                       </div>
-
-                      {/* Seats */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <svg width="13" height="13" fill="none" stroke="#6b7280" strokeWidth="2" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round"
@@ -251,8 +273,6 @@ export default function PurchaseHistory() {
                         </svg>
                         <span style={{ color: '#9ca3af', fontSize: 13 }}>Seats: {booking.seats}</span>
                       </div>
-
-                      {/* Total */}
                       <div style={{ marginTop: 4 }}>
                         <p style={{ color: '#6b7280', fontSize: 11, margin: '0 0 2px' }}>Total Amount</p>
                         <p style={{ color: '#fff', fontSize: 16, fontWeight: 700, margin: 0 }}>
@@ -262,7 +282,7 @@ export default function PurchaseHistory() {
                     </div>
                   </div>
 
-                  {/* Status badge + arrow */}
+                  {/* Status + Arrow */}
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
                     <span style={{
                       padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600,
@@ -275,6 +295,7 @@ export default function PurchaseHistory() {
                       strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                       <path d="M9 18l6-6-6-6" />
                     </svg>
+                    <span style={{ color: '#6b7280', fontSize: 11 }}>View Ticket</span>
                   </div>
                 </div>
               ))}
@@ -282,6 +303,181 @@ export default function PurchaseHistory() {
           )}
         </main>
       </div>
+
+      {/* Ticket Modal */}
+      {selectedBooking && (
+        <div style={styles.overlay} onClick={() => setSelectedBooking(null)}>
+          <div className="modal-card" style={styles.modal} onClick={e => e.stopPropagation()}>
+
+            {/* Close button */}
+            <button
+              className="no-print"
+              onClick={() => setSelectedBooking(null)}
+              style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer' }}>
+              <svg width="20" height="20" fill="none" stroke="#9ca3af" strokeWidth="2"
+                strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+
+            {/* Ticket Header */}
+            <div style={{ textAlign: 'center', marginBottom: 24 }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                gap: 8, marginBottom: 8,
+              }}>
+                <div style={{
+                  width: 32, height: 32, background: '#dc2626', borderRadius: 6,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 800, color: '#fff', fontSize: 16,
+                }}>C</div>
+                <span style={{ color: '#fff', fontSize: 20, fontWeight: 700 }}>Cinerve</span>
+              </div>
+              <p style={{ color: '#9ca3af', fontSize: 13, margin: 0 }}>Cinema Reservation Ticket</p>
+            </div>
+
+            {/* Status Badge */}
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
+              <span style={{
+                padding: '6px 20px', borderRadius: 20, fontSize: 13, fontWeight: 600,
+                background: selectedBooking.status === 'UPCOMING' ? 'rgba(59,130,246,0.2)' : 'rgba(34,197,94,0.2)',
+                color: selectedBooking.status === 'UPCOMING' ? '#60a5fa' : '#4ade80',
+              }}>
+                {selectedBooking.status === 'UPCOMING' ? '🎬 Upcoming' : '✅ Completed'}
+              </span>
+            </div>
+
+            {/* Booking Reference */}
+            <div style={{
+              background: '#0d1420', border: '1px solid #1f2937',
+              borderRadius: 10, padding: 16, marginBottom: 20, textAlign: 'center',
+            }}>
+              <p style={{ color: '#6b7280', fontSize: 12, margin: '0 0 6px' }}>Booking Reference</p>
+              <p style={{ color: '#fff', fontSize: 28, fontWeight: 800, margin: 0, letterSpacing: '3px' }}>
+                {selectedBooking.bookingReference}
+              </p>
+            </div>
+
+            {/* Movie Poster + Info */}
+            <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
+              {selectedBooking.posterUrl && (
+                <img src={selectedBooking.posterUrl} alt={selectedBooking.movieTitle}
+                  style={{ width: 80, height: 110, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }} />
+              )}
+              <div style={{ flex: 1 }}>
+                <h3 style={{ color: '#fff', fontSize: 18, fontWeight: 700, margin: '0 0 16px' }}>
+                  {selectedBooking.movieTitle}
+                </h3>
+
+                <div className="ticket-row">
+                  <span style={{ color: '#6b7280', fontSize: 13 }}>Cinema</span>
+                  <span style={{ color: '#fff', fontSize: 13, fontWeight: 600, textAlign: 'right', maxWidth: '60%' }}>
+                    {selectedBooking.cinema}
+                  </span>
+                </div>
+                <div className="ticket-row">
+                  <span style={{ color: '#6b7280', fontSize: 13 }}>Date</span>
+                  <span style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>
+                    {formatDate(selectedBooking.createdAt)}
+                  </span>
+                </div>
+                <div className="ticket-row">
+                  <span style={{ color: '#6b7280', fontSize: 13 }}>Showtime</span>
+                  <span style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>
+                    {selectedBooking.showtime}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Seats */}
+            <div style={{
+              background: '#0d1420', border: '1px solid #1f2937',
+              borderRadius: 10, padding: 16, marginBottom: 20,
+            }}>
+              <p style={{ color: '#6b7280', fontSize: 12, margin: '0 0 10px' }}>SEATS</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {selectedBooking.seats?.split(',').map(seat => (
+                  <span key={seat} style={{
+                    background: '#dc2626', color: '#fff',
+                    padding: '4px 12px', borderRadius: 6,
+                    fontSize: 14, fontWeight: 700,
+                  }}>
+                    {seat.trim()}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Payment Info */}
+            <div style={{
+              background: '#0d1420', border: '1px solid #1f2937',
+              borderRadius: 10, padding: 16, marginBottom: 24,
+            }}>
+              <div className="ticket-row" style={{ paddingTop: 0 }}>
+                <span style={{ color: '#6b7280', fontSize: 13 }}>Payment Method</span>
+                <span style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>
+                  {selectedBooking.paymentMethod}
+                </span>
+              </div>
+              <div className="ticket-row">
+                <span style={{ color: '#6b7280', fontSize: 13 }}>Total Amount</span>
+                <span style={{ color: '#dc2626', fontSize: 18, fontWeight: 700 }}>
+                  ₱{selectedBooking.totalAmount?.toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="no-print" style={{ display: 'flex', gap: 12 }}>
+              <button
+                onClick={() => setSelectedBooking(null)}
+                style={{
+                  flex: 1, padding: '13px', borderRadius: 8,
+                  background: 'transparent', border: '1px solid #374151',
+                  color: '#d1d5db', fontSize: 14, fontWeight: 600,
+                  fontFamily: 'Inter, sans-serif', cursor: 'pointer',
+                }}
+              >
+                Close
+              </button>
+              <button
+                onClick={() => window.print()}
+                style={{
+                  flex: 1, padding: '13px', borderRadius: 8,
+                  background: '#dc2626', border: 'none',
+                  color: '#fff', fontSize: 14, fontWeight: 600,
+                  fontFamily: 'Inter, sans-serif', cursor: 'pointer',
+                }}
+              >
+                🖨️ Print Ticket
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
+}
+
+const styles = {
+  overlay: {
+    position: 'fixed', inset: 0, zIndex: 100,
+    background: 'rgba(0,0,0,0.75)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    padding: 24, backdropFilter: 'blur(4px)',
+    overflowY: 'auto',
+  },
+  modal: {
+    background: '#111827',
+    border: '1px solid #1f2937',
+    borderRadius: 16,
+    padding: 32,
+    width: '100%',
+    maxWidth: 480,
+    maxHeight: '90vh',
+    overflowY: 'auto',
+    boxShadow: '0 25px 60px rgba(0,0,0,0.6)',
+    position: 'relative',
+  },
 }
