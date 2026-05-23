@@ -171,7 +171,7 @@ export default function Dashboard() {
           {/* Header */}
           <div style={{ marginBottom: 32 }}>
             <h1 style={{ color: '#fff', fontSize: 32, fontWeight: 700, margin: '0 0 6px' }}>Now Showing</h1>
-            <p style={{ color: '#9ca3af', fontSize: 14, margin: 0 }}>Book your tickets for the latest movies</p>
+            <p style={{ color: '#9ca3af', fontSize: 14, margin: 0 }}>Reserve your seats for the latest movies</p>
           </div>
 
           {/* Error */}
