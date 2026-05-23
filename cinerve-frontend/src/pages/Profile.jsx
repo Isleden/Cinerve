@@ -188,9 +188,51 @@ export default function Profile() {
 
         <main style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
 
-          <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 700, margin: '0 0 32px' }}>
-            My Profile
-          </h1>
+      <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 700, margin: '0 0 24px' }}>
+        My Profile
+      </h1>
+
+      {/* Profile Header Card */}
+      <div style={{
+        background: '#111827',
+        border: '1px solid #1f2937',
+        borderRadius: 12,
+        padding: 24,
+        marginBottom: 24,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 20,
+      }}>
+        {/* Avatar */}
+        {profile.photoUrl ? (
+          <img src={profile.photoUrl} alt="Profile"
+            style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', border: '3px solid #dc2626', flexShrink: 0 }} />
+        ) : (
+          <div style={{
+            width: 72, height: 72, borderRadius: '50%',
+            background: '#dc2626',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, fontSize: 28, fontWeight: 700, color: '#fff',
+          }}>
+            {profile.username ? profile.username.charAt(0).toUpperCase() : '?'}
+          </div>
+        )}
+
+        {/* Info */}
+        <div>
+          <h2 style={{ color: '#fff', fontSize: 20, fontWeight: 700, margin: '0 0 4px' }}>
+            {profile.fullName || profile.username || 'User'}
+          </h2>
+          <p style={{ color: '#9ca3af', fontSize: 14, margin: '0 0 4px' }}>
+            @{profile.username}
+          </p>
+          {profile.email && (
+            <p style={{ color: '#6b7280', fontSize: 13, margin: 0 }}>
+              {profile.email}
+            </p>
+          )}
+        </div>
+      </div>
 
           {loadingProfile ? (
             <div style={{ textAlign: 'center', color: '#6b7280', padding: '60px 0' }}>Loading...</div>
