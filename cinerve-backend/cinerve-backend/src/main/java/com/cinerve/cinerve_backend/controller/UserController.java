@@ -5,8 +5,6 @@ import com.cinerve.cinerve_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -19,10 +17,10 @@ import java.util.Optional;
 @RequestMapping("/api/user")
 public class UserController {
 
-    @Value("${supabase.url}")
+    @Value("${SUPABASE_URL}")
     private String supabaseUrl;
 
-    @Value("${supabase.anon-key}")
+    @Value("${SUPABASE_ANON_KEY}")
     private String supabaseAnonKey;
 
     @Autowired
