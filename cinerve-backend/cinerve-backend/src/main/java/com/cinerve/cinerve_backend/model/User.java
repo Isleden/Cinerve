@@ -20,6 +20,9 @@ public class User {
 
     private String password;
 
+    private String photoUrl;
+
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -34,4 +37,7 @@ public class User {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+
+    public String getPhotoUrl() { return photoUrl; }
+public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
 }

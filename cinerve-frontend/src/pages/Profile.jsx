@@ -24,7 +24,7 @@ export default function Profile() {
   // Photo upload state
   const [photoLoading, setPhotoLoading] = useState(false)
   const [photoError, setPhotoError] = useState('')
-
+  const [photoUrlInput, setPhotoUrlInput] = useState('')
   useEffect(() => {
     fetchProfile()
   }, [])
@@ -106,25 +106,20 @@ export default function Profile() {
     }
   }
 
-  const handlePhotoChange = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    if (!file.type.startsWith('image/'))
-      return setPhotoError('Please select an image file.')
-    if (file.size > 5 * 1024 * 1024)
-      return setPhotoError('Image must be less than 5MB.')
-
-    setPhotoLoading(true)
-    setPhotoError('')
-    try {
-      const res = await uploadPhoto(username, file)
-      setProfile({ ...profile, photoUrl: res.data.photoUrl })
-    } catch (err) {
-      setPhotoError(err.response?.data?.message || 'Failed to upload photo.')
-    } finally {
-      setPhotoLoading(false)
+    const handlePhotoSubmit = async () => {
+      if (!photoUrlInput) return setPhotoError('Please enter a photo URL.')
+      setPhotoLoading(true)
+      setPhotoError('')
+      try {
+        const res = await uploadPhoto(username, photoUrlInput)
+        setProfile({ ...profile, photoUrl: res.data.photoUrl })
+        setPhotoUrlInput('')
+      } catch (err) {
+        setPhotoError(err.response?.data?.message || 'Failed to update photo.')
+      } finally {
+        setPhotoLoading(false)
+      }
     }
-  }
 
   return (
     <>
@@ -199,55 +194,42 @@ export default function Profile() {
               {/* ── Photo Section ── */}
               <div style={styles.card}>
                 <h2 style={styles.cardTitle}>Profile Photo</h2>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-                  <div className="photo-wrap" style={{ position: 'relative', flexShrink: 0 }}
-                    onClick={() => fileInputRef.current.click()}>
-                    {profile.photoUrl ? (
-                      <img src={profile.photoUrl} alt="Profile"
-                        style={{ width: 90, height: 90, borderRadius: '50%', objectFit: 'cover', border: '3px solid #1f2937' }} />
-                    ) : (
-                      <div style={{
-                        width: 90, height: 90, borderRadius: '50%',
-                        background: '#1f2937', border: '3px solid #374151',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        <svg width="36" height="36" fill="none" stroke="#6b7280" strokeWidth="1.5" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                      </div>
-                    )}
-                    <div className="photo-overlay">
-                      {photoLoading ? (
-                        <svg style={{ width: 20, height: 20, animation: 'spin 0.8s linear infinite' }}
-                          viewBox="0 0 24 24" fill="none">
-                          <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3" />
-                          <path d="M12 2a10 10 0 0110 10" stroke="white" strokeWidth="3" strokeLinecap="round" />
-                        </svg>
-                      ) : (
-                        <svg width="20" height="20" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round"
-                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                          <circle cx="12" cy="13" r="3" />
-                        </svg>
-                      )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 20 }}>
+                  {profile.photoUrl ? (
+                    <img src={profile.photoUrl} alt="Profile"
+                      style={{ width: 90, height: 90, borderRadius: '50%', objectFit: 'cover', border: '3px solid #dc2626', flexShrink: 0 }} />
+                  ) : (
+                    <div style={{
+                      width: 90, height: 90, borderRadius: '50%',
+                      background: '#dc2626',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 36, fontWeight: 700, color: '#fff', flexShrink: 0,
+                    }}>
+                      {profile.username ? profile.username.charAt(0).toUpperCase() : '?'}
                     </div>
-                  </div>
-
+                  )}
                   <div>
                     <p style={{ color: '#d1d5db', fontSize: 14, margin: '0 0 4px' }}>
-                      Click the photo to upload a new one
+                      Update your profile picture
                     </p>
                     <p style={{ color: '#6b7280', fontSize: 12, margin: 0 }}>
-                      JPG, PNG or GIF — max 5MB
+                      Paste any direct image URL
                     </p>
-                    {photoError && (
-                      <p style={{ color: '#f87171', fontSize: 12, margin: '8px 0 0' }}>{photoError}</p>
-                    )}
                   </div>
                 </div>
-                <input ref={fileInputRef} type="file" accept="image/*"
-                  style={{ display: 'none' }} onChange={handlePhotoChange} />
+
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <input
+                    className="profile-input"
+                    placeholder="https://example.com/photo.jpg"
+                    value={photoUrlInput}
+                    onChange={e => { setPhotoUrlInput(e.target.value); setPhotoError('') }}
+                  />
+                  <button className="save-btn" onClick={handlePhotoSubmit} disabled={photoLoading}>
+                    {photoLoading ? 'Saving...' : 'Update'}
+                  </button>
+                </div>
+                {photoError && <p style={{ color: '#f87171', fontSize: 12, margin: '8px 0 0' }}>{photoError}</p>}
               </div>
 
               {/* ── Edit Profile ── */}
