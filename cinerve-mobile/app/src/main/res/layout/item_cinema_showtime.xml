@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/cinema_card_background"
+    android:padding="16dp"
+    android:layout_marginBottom="12dp">
+
+    <!-- Cinema Name -->
+    <TextView
+        android:id="@+id/tvCinemaName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp"/>
+
+    <!-- Cinema Address -->
+    <TextView
+        android:id="@+id/tvCinemaAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#6B7280"
+        android:textSize="12sp"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Showtimes Label -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Showtimes"
+        android:textColor="#9CA3AF"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Showtime Buttons Container -->
+    <LinearLayout
+        android:id="@+id/llTimes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"/>
+
+</LinearLayout>

@@ -1,46 +1,43 @@
-package com.example.cinerve.app.login
+package com.example.cinerve.app.history
 
 import com.example.cinerve.app.network.RetrofitClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.example.cinerve.app.network.LoginRequest
 
-class LoginPresenter(private val view: LoginView) {
+class PurchaseHistoryPresenter(private val view: PurchaseHistoryView) {
 
     private val apiService = RetrofitClient.apiService
 
-    fun login(username: String, password: String) {
-        // Validate empty fields
-        if (username.isEmpty() || password.isEmpty()) {
-            view.showEmptyFieldsError()
-            return
-        }
-
+    fun loadHistory(username: String) {
         view.showLoading()
-
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = apiService.login(LoginRequest(username, password))
-
+                val response = apiService.getBookingHistory(username)
                 withContext(Dispatchers.Main) {
                     view.hideLoading()
-
                     if (response.isSuccessful && response.body() != null) {
-                        val token = response.body()!!.token
-                        val username = response.body()!!.username
-                        view.onLoginSuccess(token, username)
+                        val bookings = response.body()!!
+                        if (bookings.isEmpty()) {
+                            view.showEmptyState()
+                        } else {
+                            view.showBookings(bookings)
+                        }
                     } else {
-                        view.onLoginError("Invalid credentials")
+                        view.showError("Failed to load bookings")
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     view.hideLoading()
-                    view.onLoginError("Network error: ${e.message}")
+                    view.showError("Network error: ${e.message}")
                 }
             }
         }
+    }
+
+    fun onBookingClicked(booking: com.example.cinerve.app.model.Booking) {
+        view.showBookingDetail(booking)
     }
 }

@@ -47,10 +47,13 @@ class LoginActivity : AppCompatActivity(), LoginView {
         btnLogin.isEnabled = true
     }
 
-    override fun onLoginSuccess(token: String) {
+    override fun onLoginSuccess(token: String, username: String) {
+        // Save username to SharedPreferences
+        val prefs = getSharedPreferences("cinerve_prefs", MODE_PRIVATE)
+        prefs.edit().putString("username", username).apply()
+
         Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
         val intent = Intent(this, HomeActivity::class.java)
-        intent.putExtra("TOKEN", token)
         startActivity(intent)
         finish()
     }

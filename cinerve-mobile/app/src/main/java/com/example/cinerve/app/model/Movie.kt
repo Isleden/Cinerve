@@ -1,5 +1,7 @@
 package com.example.cinerve.app.model
 
+import java.io.Serializable
+
 data class Movie(
     val id: Long,
     val title: String,
@@ -9,4 +11,4 @@ data class Movie(
     val posterUrl: String?,
     val description: String?,
     val actors: String?
-)
+) : Serializable

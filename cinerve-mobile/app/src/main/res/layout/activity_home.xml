@@ -52,6 +52,17 @@
             android:textColor="#9CA3AF"
             android:textSize="13sp"/>
 
+        <!-- History Button -->
+        <Button
+            android:id="@+id/btnHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="History"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:backgroundTint="#1F2937"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"/>
     </LinearLayout>
 
     <!-- Divider -->

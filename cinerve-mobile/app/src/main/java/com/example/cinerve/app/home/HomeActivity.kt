@@ -1,7 +1,9 @@
 package com.example.cinerve.app.home
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -10,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cinerve.app.R
 import com.example.cinerve.app.adapter.MovieAdapter
+import com.example.cinerve.app.history.PurchaseHistoryActivity
 import com.example.cinerve.app.model.Movie
 
 class HomeActivity : AppCompatActivity(), HomeView {
@@ -37,6 +40,11 @@ class HomeActivity : AppCompatActivity(), HomeView {
 
         // Load movies
         presenter.loadMovies()
+
+        // History Navigation
+        findViewById<Button>(R.id.btnHistory).setOnClickListener {
+            startActivity(Intent(this, PurchaseHistoryActivity::class.java))
+        }
     }
 
     override fun showLoading() {
