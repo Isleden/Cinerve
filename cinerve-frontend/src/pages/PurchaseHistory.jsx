@@ -216,7 +216,10 @@ export default function PurchaseHistory() {
                 <div
                   key={booking.id}
                   className="booking-card"
-                  onClick={() => setSelectedBooking(booking)}
+                  onClick={() => {
+                          console.log('Clicked booking:', booking)
+                          setSelectedBooking(booking)
+                        }}
                 >
                   {/* Poster */}
                   {booking.posterUrl ? (
