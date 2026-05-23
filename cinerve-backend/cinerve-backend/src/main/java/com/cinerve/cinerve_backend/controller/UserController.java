@@ -3,10 +3,14 @@ package com.cinerve.cinerve_backend.controller;
 import com.cinerve.cinerve_backend.model.User;
 import com.cinerve.cinerve_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 import java.util.Optional;
@@ -14,6 +18,12 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
+
+    @Value("${supabase.url}")
+    private String supabaseUrl;
+
+    @Value("${supabase.anon-key}")
+    private String supabaseAnonKey;
 
     @Autowired
     private UserRepository userRepository;
@@ -30,7 +40,6 @@ public class UserController {
                     .body(Map.of("message", "User not found"));
         }
         User u = user.get();
-        // Don't return password
         u.setPassword(null);
         return ResponseEntity.ok(u);
     }
@@ -80,17 +89,39 @@ public class UserController {
 
     // POST /api/user/photo?username=john
     @PostMapping("/photo")
-    public ResponseEntity<?> updatePhoto(
+    public ResponseEntity<?> uploadPhoto(
             @RequestParam String username,
-            @RequestBody Map<String, String> body) {
+            @RequestParam("file") MultipartFile file) {
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", "User not found"));
         }
-        User user = userOpt.get();
-        user.setPhotoUrl(body.get("photoUrl"));
-        userRepository.save(user);
-        return ResponseEntity.ok(Map.of("photoUrl", user.getPhotoUrl()));
+
+        try {
+            String fileName = username + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
+
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + supabaseAnonKey);
+            headers.set("Content-Type", file.getContentType());
+            headers.set("x-upsert", "true");
+
+            HttpEntity<byte[]> requestEntity = new HttpEntity<>(file.getBytes(), headers);
+
+            String uploadUrl = supabaseUrl + "/storage/v1/object/avatars/" + fileName;
+            restTemplate.exchange(uploadUrl, HttpMethod.POST, requestEntity, String.class);
+
+            String photoUrl = supabaseUrl + "/storage/v1/object/public/avatars/" + fileName;
+
+            User user = userOpt.get();
+            user.setPhotoUrl(photoUrl);
+            userRepository.save(user);
+
+            return ResponseEntity.ok(Map.of("photoUrl", photoUrl));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Failed to upload photo: " + e.getMessage()));
+        }
     }
 }
